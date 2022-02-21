@@ -1,5 +1,7 @@
 # github-runner-utils
 
+[![githubactions](https://github.com/kyhau/github-runner-utils/workflows/github-runner-utils-build/badge.svg)](https://github.com/kyhau/github-runner-utils/actions)
+
 `github-runner-utils` returns the GitHub runner registration token for registering a self-hosted runner to GitHub.
 
 ## Usage
