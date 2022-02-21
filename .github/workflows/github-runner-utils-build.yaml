@@ -46,8 +46,11 @@ jobs:
       - name: Build github-runner-utils binary
         run: |
           go build
-          ./github-runner-utils -version
           ./github-runner-utils -help
+
+      - name: Check github-runner-utils version
+        run: |
+          echo "INFO: Check github-runner-utils version: $(./github-runner-utils -version)"
 
       - name: Run github-runner-utils unit tests
         run: |
@@ -73,9 +76,9 @@ jobs:
       #   run: |
       #     aws s3 cp github-runner-utils s3://${{ env.S3Location }}/dev/github-runner-utils
 
-      - name: Clean-up Go installation within build folder
-        if: always()
-        run: |
-          GO_FILENAME=go${{ env.GoVersion }}.linux-amd64.tar.gz
-          [[ ! -f "$GO_FILENAME" ]] || rm ${GO_FILENAME}*
-          [[ ! -d "$PWD/go" ]] || rm -rf ${PWD}/go
+      # - name: Clean-up Go installation within build folder
+      #   if: always()
+      #   run: |
+      #     GO_FILENAME=go${{ env.GoVersion }}.linux-amd64.tar.gz
+      #     [[ ! -f "$GO_FILENAME" ]] || rm ${GO_FILENAME}*
+      #     [[ ! -d "$PWD/go" ]] || rm -rf ${PWD}/go
