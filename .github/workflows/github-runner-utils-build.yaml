@@ -1,0 +1,81 @@
+name: github-runner-utils-build
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-github-runner-utils:
+    name: Build github-runner-utils
+    runs-on: ubuntu-latest
+    env:
+      S3Location: TODO/github-runner-utils
+      GOCACHE: /tmp/go/cache
+      GoVersion: 1.17.6
+      Region: ap-southeast-2
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build Info
+        run: |
+          echo "github.ref: ${{ github.ref }}"
+          echo "pwd: $PWD"
+
+      - name: Run yamllint
+        run: yamllint -c ./.github/linters/.yaml-lint.yaml .github -f parsable
+
+      - name: Install Go ${{ env.GoVersion }} within build folder
+        run: |
+          GO_FILENAME=go${{ env.GoVersion }}.linux-amd64.tar.gz
+          DOWNLOAD_LINK="https://go.dev/dl/${GO_FILENAME}"
+          wget -q ${DOWNLOAD_LINK} -O ${GO_FILENAME}
+          tar -xzf ${GO_FILENAME}
+          rm ${GO_FILENAME}*
+          echo "$PWD/go/bin" >> $GITHUB_PATH
+          echo "GOPATH=$PWD/go" >> $GITHUB_ENV
+
+      - name: Check Go version
+        run: |
+          echo "INFO: Check Go version: $(go version)"
+
+      - name: Build github-runner-utils binary
+        run: |
+          go build
+          ./github-runner-utils -version
+          ./github-runner-utils -help
+
+      - name: Run github-runner-utils unit tests
+        run: |
+          CGO_ENABLED=0 go test -v
+
+      # - uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-region: ${{ env.Region }}
+      #     role-to-assume: arn:aws:iam::123456789012:role/github-ci-deploy
+      #     role-skip-session-tagging: true
+      #     role-duration-seconds: 900
+
+      # - if: ${{ github.ref == 'refs/heads/master' }}
+      #   name: Deploy master binary to S3 bucket
+      #   run: |
+      #     BINARY_VERSION=$(github-runner-utils -version)
+      #     echo "INFO: Upload version: ${BINARY_VERSION}"
+      #     aws s3 cp github-runner-utils s3://${{ env.S3Location }}/${BINARY_VERSION}/github-runner-utils
+      #     aws s3 cp github-runner-utils s3://${{ env.S3Location }}/latest/github-runner-utils
+
+      # - if: ${{ github.ref != 'refs/heads/master' }}
+      #   name: Deploy branch binary to S3 bucket
+      #   run: |
+      #     aws s3 cp github-runner-utils s3://${{ env.S3Location }}/dev/github-runner-utils
+
+      - name: Clean-up Go installation within build folder
+        if: always()
+        run: |
+          GO_FILENAME=go${{ env.GoVersion }}.linux-amd64.tar.gz
+          [[ ! -f "$GO_FILENAME" ]] || rm ${GO_FILENAME}*
+          [[ ! -d "$PWD/go" ]] || rm -rf ${PWD}/go
