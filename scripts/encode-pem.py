@@ -5,6 +5,7 @@ def read_file(filename):
     with open(filename) as f:
         return f.readlines()
 
+
 pem_text = "".join(read_file("testdata/sample_key.pem"))
 print("CheckPt 1")
 print(pem_text)
