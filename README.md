@@ -54,7 +54,7 @@ cd /opt/github/actions-runner
 
 ## Build Binary
 
-Tested with `go version go1.17.6 linux/amd64`
+Tested with `go version 1.20 linux/amd64`
 
 ```
 ## Install and output binary
@@ -79,7 +79,7 @@ $ go build -v -ldflags="-X 'main.Version=v1.0.0'"
 
 ```
 ## Update module: Output: go.mod being updated, go.sum being created/updated
-$ go mod tidy
+$ go get -u ./... && go mod tidy
 
 ## Build and saves the compiled package in the local build cache. Output: ./github-runner-utils
 $ go build
@@ -105,5 +105,4 @@ $ go test -v -coverprofile=coverage.out
 ## Development Notes
 
 1. Ensure your go.sum file is committed along with your go.mod file.
-2. Default golang in Ubuntu 20 is 1.13. `github.com/golang-jwt/jwt` needs a newer Go version.
-3. Standard "log" module does not have log level.
+2. Standard "log" module does not have log level.
