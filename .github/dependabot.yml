@@ -6,6 +6,10 @@ updates:
       interval: weekly
   - package-ecosystem: gomod
     directory: "/"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
     schedule:
       interval: weekly
     open-pull-requests-limit: 1
